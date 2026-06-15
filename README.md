@@ -1,34 +1,39 @@
-💬 Real-Time Chat Application
+# 💬 Real-Time Chat Application
 
-A real-time chat application built using Spring Boot, WebSocket, and STOMP that enables multiple users to communicate instantly in a shared chat room.
+A real-time chat application built using **Spring Boot**, **WebSocket**, and **STOMP** that enables multiple users to communicate instantly in a shared chat room.
 
-🚀 Features
+## 🚀 Features
 
-Real-time messaging using WebSocket
-STOMP protocol support
-Multiple users can join the chat room
-Responsive chat interface
-Instant message broadcasting
+* Real-time messaging using WebSocket
+* STOMP protocol support
+* Multiple users can join the chat room
+* Responsive chat interface
+* Instant message broadcasting
 
-🛠️ Tech Stack
+---
 
-Backend
+## 🛠️ Tech Stack
 
-Java 17+
-Spring Boot
-Spring WebSocket
-STOMP Protocol
-Maven
+### Backend
 
-Frontend
+* Java 17+
+* Spring Boot
+* Spring WebSocket
+* STOMP Protocol
+* Maven
 
-HTML5
-CSS3
-Bootstrap 5
-JavaScript
+### Frontend
 
+* HTML5
+* CSS3
+* Bootstrap 5
+* JavaScript
 
-📂 Project Structure
+---
+
+## 📂 Project Structure
+
+```text
 src
  └── main
       ├── java
@@ -45,19 +50,33 @@ src
             ├── templates
             │      └── chat.html
             └── application.properties
+```
 
-            
-⚙️ How to Run the Project
+---
 
-1. Clone the repository
+## ⚙️ How to Run the Project
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/Mohammadkaif002/ChatApp.git
 cd ChatApp
+```
 
-2. Build the project
+### 2. Build the project
+
+```bash
 mvn clean install
+```
 
-3. Run the application
+### 3. Run the application
+
+```bash
 mvn spring-boot:run
+```
 
-4. Open browser
+### 4. Open browser
+
+```text
 http://localhost:8080
+```
