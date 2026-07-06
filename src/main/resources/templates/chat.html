@@ -7,13 +7,96 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <style>
-        body { background-color: #f8f9fa; }
-        #chat-container { max-width: 600px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        #message-area { height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; margin-bottom: 20px; border-radius: 5px; background: #fff; }
-        .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 15px; max-width: 80%; }
-        .received { background-color: #e9ecef; align-self: flex-start; }
-        .sent { background-color: #007bff; color: white; align-self: flex-end; margin-left: auto; }
+        body {
+            min-height: 100vh;
+            background:
+                linear-gradient(rgba(216, 243, 220, 0.30), rgba(155, 213, 223, 0.30)),
+                url("/images/chat-login.svg"),
+                radial-gradient(circle at 18px 18px, rgba(255, 255, 255, 0.18) 2px, transparent 3px),
+                radial-gradient(circle at 72px 54px, rgba(255, 255, 255, 0.12) 2px, transparent 3px),
+                linear-gradient(135deg, #d8f3dc 0%, #b7e4c7 42%, #9bd5df 100%);
+            background-size: cover, cover, 96px 96px, 96px 96px, cover;
+            background-position: center;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body.chat-open {
+            background:
+                linear-gradient(rgba(7, 94, 84, 0.82), rgba(18, 140, 126, 0.78)),
+                url("/images/chat-room.svg"),
+                radial-gradient(circle at 20px 20px, rgba(255, 255, 255, 0.20) 2px, transparent 3px),
+                radial-gradient(circle at 70px 58px, rgba(255, 255, 255, 0.14) 2px, transparent 3px),
+                linear-gradient(135deg, #075e54 0%, #128c7e 50%, #34b7f1 100%);
+            background-size: cover, cover, 90px 90px, 90px 90px, cover;
+        }
+
+        #chat-container {
+            max-width: 640px;
+            margin: 48px auto;
+            background: rgba(255, 255, 255, 0.94);
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: 8px;
+            box-shadow: 0 24px 55px rgba(12, 32, 48, 0.28);
+            backdrop-filter: blur(12px);
+        }
+
+        h2 {
+            color: #123047;
+            font-weight: 700;
+        }
+
+        #message-area {
+            height: 420px;
+            overflow-y: auto;
+            border: 1px solid #c9d9df;
+            padding: 14px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.90)),
+                repeating-linear-gradient(45deg, #eff7f7 0 10px, #ffffff 10px 20px);
+        }
+
+        body.chat-open #message-area {
+            border-color: #b8d8d2;
+            background:
+                linear-gradient(rgba(237, 248, 244, 0.88), rgba(237, 248, 244, 0.88)),
+                url("/images/chat-room.svg"),
+                radial-gradient(circle at 22px 24px, rgba(7, 94, 84, 0.12) 2px, transparent 3px),
+                radial-gradient(circle at 76px 64px, rgba(52, 183, 241, 0.14) 2px, transparent 3px),
+                linear-gradient(135deg, #e7f5ee 0%, #d7f1ec 100%);
+            background-size: cover, 520px auto, 92px 92px, 92px 92px, cover;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 9px 13px;
+            border-radius: 8px;
+            max-width: 80%;
+            box-shadow: 0 8px 20px rgba(29, 57, 71, 0.10);
+        }
+
+        .received { background-color: #ffffff; align-self: flex-start; color: #20323a; }
+        .sent { background-color: #0d6b7f; color: white; align-self: flex-end; margin-left: auto; }
         .sender-name { font-size: 0.8rem; font-weight: bold; margin-bottom: 2px; display: block; }
+        #message { resize: none; min-height: 42px; }
+        .message-content { white-space: pre-wrap; }
+        .btn-primary {
+            background-color: #0d6b7f;
+            border-color: #0d6b7f;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #095669;
+            border-color: #095669;
+        }
+
+        .form-control:focus {
+            border-color: #38a3a5;
+            box-shadow: 0 0 0 0.2rem rgba(56, 163, 165, 0.22);
+        }
     </style>
 </head>
 <body>
@@ -29,7 +112,7 @@
     <div id="chat-page" style="display:none;">
         <div id="message-area" class="d-flex flex-column"></div>
         <div class="input-group">
-            <input type="text" id="message" class="form-control" placeholder="Type a message...">
+            <textarea id="message" class="form-control" placeholder="Type a message..." rows="1"></textarea>
             <button onclick="sendMessage()" class="btn btn-primary">Send</button>
         </div>
     </div>
@@ -44,6 +127,7 @@
         if(username) {
             document.getElementById('username-page').style.display = 'none';
             document.getElementById('chat-page').style.display = 'block';
+            document.body.classList.add('chat-open');
 
             var socket = new SockJS('/ws-chat');
             stompClient = Stomp.over(socket);
@@ -84,7 +168,16 @@
         }
 
         var contentElement = document.createElement('div');
-        contentElement.innerHTML = `<span class="sender-name">${message.sender}</span>${message.content}`;
+        var senderElement = document.createElement('span');
+        senderElement.classList.add('sender-name');
+        senderElement.textContent = message.sender;
+
+        var messageContentElement = document.createElement('div');
+        messageContentElement.classList.add('message-content');
+        messageContentElement.textContent = message.content;
+
+        contentElement.appendChild(senderElement);
+        contentElement.appendChild(messageContentElement);
         messageElement.appendChild(contentElement);
 
         var messageArea = document.getElementById('message-area');
@@ -92,10 +185,17 @@
         messageArea.scrollTop = messageArea.scrollHeight;
     }
 
-    // Allow Enter key to send message
-    document.getElementById('message').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
+    // Enter sends the message. Shift+Enter keeps the newline in the textarea.
+    document.getElementById('message').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             sendMessage();
+        }
+    });
+
+    document.getElementById('name').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            connect();
         }
     });
 </script>
